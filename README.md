@@ -6,7 +6,7 @@ Once the bot has joined your server, verify that the `Albion Offline` role can v
 # What does it do?
 Albion Offline is a Discord bot which provides live updates regarding the Albion Online server status, some examples of notifications, can be seen below.
 
-![Server Up](images/up.gifv)
+![Server Up](images/up.gif)
 
 
 ![Server Down](images/down.gifv)
