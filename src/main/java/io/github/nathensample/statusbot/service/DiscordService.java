@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -40,5 +41,11 @@ public class DiscordService
 
 	public void addListener(ListenerAdapter listener) {
 		jda.addEventListener(listener);
+	}
+
+	@Scheduled(cron = "0 0/5 * * * ?")
+	private void logInfo()
+	{
+		LOGGER.info("Currently broadcasting to {} guilds.", jda.getGuilds().size());
 	}
 }

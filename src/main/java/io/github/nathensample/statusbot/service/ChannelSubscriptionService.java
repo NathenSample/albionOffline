@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -61,5 +62,11 @@ public class ChannelSubscriptionService
 
 	public List<String> getChannelsToNotify() {
 		return channelsToNotify;
+	}
+
+	@Scheduled(cron = "0 0/5 * * * ?")
+	private void logInfo()
+	{
+		LOGGER.info("Currently broadcasting to {} channels.", channelsToNotify.size());
 	}
 }

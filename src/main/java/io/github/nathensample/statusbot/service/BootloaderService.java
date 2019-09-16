@@ -1,8 +1,12 @@
 package io.github.nathensample.statusbot.service;
 
 import io.github.nathensample.statusbot.listener.AdminChannelListener;
+import io.github.nathensample.statusbot.listener.GuildJoinListener;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,18 +25,21 @@ public class BootloaderService
 
 	private final AdminChannelListener adminChannelListener;
 	private final DiscordService discordService;
-	private final ChannelNotifierService channelNotifierService;
+	private final GuildJoinListener guildJoinListener;
 
 	private BootloaderService(@Autowired  DiscordService discordService,
 							  @Autowired AdminChannelListener adminChannelListener,
-							  @Autowired ChannelNotifierService channelNotifierService){
+							  @Autowired GuildJoinListener guildJoinListener){
 		this.discordService = discordService;
 		this.adminChannelListener = adminChannelListener;
-		this.channelNotifierService = channelNotifierService;
+		this.guildJoinListener = guildJoinListener;
 	}
 
 	@EventListener(ApplicationReadyEvent.class)
 	public void initializeBot(){
-		discordService.initializeBot(Collections.singletonList(adminChannelListener));
+		List<ListenerAdapter> listeners = new ArrayList<>();
+		listeners.add(guildJoinListener);
+		listeners.add(adminChannelListener);
+		discordService.initializeBot(listeners);
 	}
 }

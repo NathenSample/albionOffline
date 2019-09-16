@@ -2,6 +2,7 @@ package io.github.nathensample.statusbot.service;
 
 import io.github.nathensample.statusbot.model.Status;
 import java.util.List;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,13 @@ public class ChannelNotifierService
 	public void notifyChannels(Status newStatus, Status oldStatus) {
 		List<String> channelsToNotify = channelSubscriptionService.getChannelsToNotify();
 		channelsToNotify.forEach(channelId -> {
-			discordService.getJda().getTextChannelById(channelId).sendMessage(newStatus.prettyPrint(oldStatus)).queue();
+			TextChannel channel = discordService.getJda().getTextChannelById(channelId);
+			if (channel != null) {
+				channel.sendMessage(newStatus.prettyPrint(oldStatus)).queue();
+			} else {
+				LOGGER.error("Removing ID {} was unable to retrieve it.", channelId);
+				channelSubscriptionService.getChannelsToNotify().remove(channelId);
+			}
 		});
 		LOGGER.info("Notified {} channels of the update to {}", channelsToNotify.size(), newStatus);
 	}

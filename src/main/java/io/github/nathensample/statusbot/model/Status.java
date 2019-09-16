@@ -8,6 +8,7 @@ import java.util.TimeZone;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
+//TODO: Fix tidyUpIrritatingNewLines(); laziness
 public class Status
 {
 	private String status;
@@ -30,6 +31,8 @@ public class Status
 			return false;
 		}
 		Status status1 = (Status) o;
+		tidyUpIrritatingNewLines();
+		status1.tidyUpIrritatingNewLines();
 		return Objects.equals(status, status1.status) &&
 			Objects.equals(message, status1.message);
 	}
@@ -37,7 +40,7 @@ public class Status
 	@Override
 	public int hashCode()
 	{
-
+		tidyUpIrritatingNewLines();
 		return Objects.hash(status, message);
 	}
 
@@ -57,8 +60,15 @@ public class Status
 		this.message = message;
 	}
 
+	private void tidyUpIrritatingNewLines() {
+		this.status = this.status.replaceAll("\\n", " ");
+		this.message = this.message.replaceAll("\\n", " ");
+	}
+
 	public MessageEmbed prettyPrint(Status oldStatus)
 	{
+		tidyUpIrritatingNewLines();
+
 		SimpleDateFormat isoFormat = new SimpleDateFormat("hh:mm:ss dd MMMM yyyy zzzz");
 		isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String strDate = isoFormat.format(new Date());
@@ -85,6 +95,7 @@ public class Status
 	@Override
 	public String toString()
 	{
+		tidyUpIrritatingNewLines();
 		return "Status{" +
 			"status='" + status + '\'' +
 			", message='" + message + '\'' +

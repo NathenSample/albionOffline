@@ -1,5 +1,6 @@
 package io.github.nathensample.statusbot.service;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.nathensample.statusbot.model.Status;
 import java.io.IOException;
@@ -39,6 +40,7 @@ public class StatusPollingService
 	private boolean updateStatus() throws IOException
 	{
 		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
 		Status newStatus = objectMapper.readValue(new URL("https://live.albiononline.com/status.txt"), Status.class);
 		LOGGER.info("Polled albion for status: {}", newStatus);
 		if (newStatus.equals(currentStatus)) {
@@ -49,7 +51,7 @@ public class StatusPollingService
 		return true;
 	}
 
-	@Scheduled(cron = "0 0/5 * * * ?")
+	@Scheduled(cron = "0/5 * * * * ?")
 	private void pollStatus() throws IOException
 	{
 		boolean updated = updateStatus();
