@@ -15,7 +15,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 /*
-https://discordapp.com/oauth2/authorize?client_id=622384942755610624&scope=bot&permissions=3072
+https://discordapp.com/oauth2/authorize?client_id=622384942755610624&scope=bot&permissions=3072 - Main application
+https://discordapp.com/oauth2/authorize?client_id=623092400738533378&scope=bot&permissions=3072 - Developer
  */
 @Service
 public class BootloaderService
