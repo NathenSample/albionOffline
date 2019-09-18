@@ -12,30 +12,29 @@ import java.util.stream.Stream;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ChannelSubscriptionService
 {
-	//TODO: Unshitfuck the path logic
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(ChannelSubscriptionService.class);
+	private final SqlLiteService sqlLiteService;
 
 	private List<String> channelsToNotify = new ArrayList<>();
 
-	public ChannelSubscriptionService() {
-		try {
-			File out = new File("./persistedChannels.properties");
-			out.createNewFile();
-			Stream<String> lines = Files.lines(Paths.get("./persistedChannels.properties"));
-			channelsToNotify = lines.collect(Collectors.toList());
-			LOGGER.info("Loaded {} channels", channelsToNotify.size());
-		}
-		catch (IOException e)
-		{
-			LOGGER.error("Failed to initialise server properly, no persisted channels", e);
-		}
+	public ChannelSubscriptionService(@Autowired SqlLiteService sqlLiteService) {
+		this.sqlLiteService = sqlLiteService;
+	}
+
+	@EventListener(ApplicationReadyEvent.class)
+	public void populateChannelsFromDb() {
+		LOGGER.info("Attempting to load channels from DB");
+		channelsToNotify = sqlLiteService.loadChannelIdsFromDatabase();
+		LOGGER.info("Loaded {}", channelsToNotify);
 	}
 
 	/**
@@ -50,8 +49,12 @@ public class ChannelSubscriptionService
 		String channelId = event.getChannel().getId();
 		if (channelsToNotify.contains(channelId)) {
 			channelsToNotify.remove(channelId);
+			sqlLiteService.removeChannelFromDatabase(channelId);
+			LOGGER.info("Removed channel {}", channelId);
 		} else {
 			channelsToNotify.add(channelId);
+			sqlLiteService.persistChannelToDatabase(channelId);
+			LOGGER.info("added channel {}", channelId);
 			enabled = true;
 		}
 
