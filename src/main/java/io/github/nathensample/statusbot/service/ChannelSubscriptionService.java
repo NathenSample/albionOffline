@@ -43,7 +43,7 @@ public class ChannelSubscriptionService
 	 * @return false if disabled, true if enabled
 	 * @throws IOException when it cant persist the status
 	 */
-	public boolean toggleChannel(GuildMessageReceivedEvent event) throws IOException
+	public boolean toggleChannel(GuildMessageReceivedEvent event)
 	{
 		boolean enabled = false;
 		String channelId = event.getChannel().getId();
@@ -57,9 +57,6 @@ public class ChannelSubscriptionService
 			LOGGER.info("added channel {}", channelId);
 			enabled = true;
 		}
-
-		File out = new File("./persistedChannels.properties");
-		Files.write(Paths.get(out.getPath()), channelsToNotify, Charset.defaultCharset());
 		return enabled;
 	}
 
