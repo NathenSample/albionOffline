@@ -1,7 +1,12 @@
 package io.github.nathensample.statusbot.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.sql.Time;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 import java.util.TimeZone;
@@ -49,10 +54,17 @@ public class Status
 		return message;
 	}
 
+	public void setMessage(String message)
+	{
+		this.message = message;
+	}
+
 	private void sanitizeInput() {
 		this.status = this.status.replaceAll("\\n", " ");
 		this.message = this.message.replaceAll("\\n", " ");
 	}
+
+
 
 	public MessageEmbed prettyPrint(Status oldStatus)
 	{
