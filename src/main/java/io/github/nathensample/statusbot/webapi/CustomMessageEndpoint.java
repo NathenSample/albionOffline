@@ -1,6 +1,5 @@
 package io.github.nathensample.statusbot.webapi;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.nathensample.statusbot.model.CustomMessage;
 import io.github.nathensample.statusbot.service.ChannelNotifierService;
 import javax.servlet.http.HttpServletRequest;

@@ -3,8 +3,6 @@ package io.github.nathensample.statusbot.service;
 import io.github.nathensample.statusbot.listener.AdminChannelListener;
 import io.github.nathensample.statusbot.listener.GuildJoinListener;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;

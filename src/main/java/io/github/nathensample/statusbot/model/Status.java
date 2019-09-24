@@ -2,11 +2,7 @@ package io.github.nathensample.statusbot.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.sql.Time;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalTime;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 import java.util.TimeZone;
