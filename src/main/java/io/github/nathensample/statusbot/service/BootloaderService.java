@@ -5,8 +5,6 @@ import io.github.nathensample.statusbot.listener.GuildJoinListener;
 import java.util.ArrayList;
 import java.util.List;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -19,9 +17,6 @@ https://discordapp.com/oauth2/authorize?client_id=623092400738533378&scope=bot&p
 @Service
 public class BootloaderService
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(BootloaderService.class);
-
-
 	private final AdminChannelListener adminChannelListener;
 	private final DiscordService discordService;
 	private final GuildJoinListener guildJoinListener;

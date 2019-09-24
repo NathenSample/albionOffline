@@ -1,76 +1,70 @@
 package io.github.nathensample.statusbot.service;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestFactory;
+import com.google.api.client.http.HttpResponse;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import io.github.nathensample.statusbot.config.ConfigLoader;
+import io.github.nathensample.statusbot.exception.ResourceNotAvailableException;
 import io.github.nathensample.statusbot.model.Status;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.URL;
-import java.sql.Time;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.Date;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.InputStreamReader;
+import static java.lang.System.lineSeparator;
+import static java.util.stream.Collectors.joining;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
 public class StatusPollingService
 {
-	//TODO: Implement a HTTP service to unshit the api call logic
-	private static final Logger LOGGER = LoggerFactory.getLogger(StatusPollingService.class);
+	public static final String UTF8_BOM = "\uFEFF";
+	private ConfigLoader CONFIG_LOADER;
+	private ObjectMapper objectMapper;
 
-	private final ChannelNotifierService channelNotifierService;
-	private final DowntimeService downtimeService;
-	private Status previousStatus = new Status("First Run", "First Run");
-	private Status currentStatus = new Status("First Run", "First Run");
+	private GenericUrl BACKEND_STATUS_URL;
+	private GenericUrl JENKINS_STATUS_URL;
 
-	public StatusPollingService(@Autowired ChannelNotifierService channelNotifierService,
-								@Autowired DowntimeService downtimeService){
-		this.channelNotifierService = channelNotifierService;
-		this.downtimeService = downtimeService;
+	public StatusPollingService(@Autowired ConfigLoader configLoader,
+								@Autowired ObjectMapper objectMapper){
+		this.CONFIG_LOADER = configLoader;
+		this.objectMapper = objectMapper;
 	}
 
-	@EventListener(ApplicationReadyEvent.class)
-	private void forcePoll() throws IOException
+	@PostConstruct
+	public void init()
 	{
-		updateStatus();
+		BACKEND_STATUS_URL = new GenericUrl(CONFIG_LOADER.getBackendStatusStr());
+		JENKINS_STATUS_URL = new GenericUrl(CONFIG_LOADER.getJenkinsStatusStr());
 	}
 
-	/**
-	 *
-	 * @return false if nothing changed, true if an update occurred
-	 * @throws IOException
-	 */
-	private boolean updateStatus() throws IOException
+	public Status getStatus() throws IOException, ResourceNotAvailableException
 	{
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
-		Status newStatus = objectMapper.readValue(new URL("http://serverstatus.albiononline.com"), Status.class);
-		LOGGER.info("Polled albion for status: {}", newStatus);
-		if (newStatus.equals(currentStatus)) {
-			return false;
-		}
-		previousStatus = currentStatus;
-		currentStatus = newStatus;
-		if (currentStatus.getStatus().equalsIgnoreCase("offline") && downtimeService.isDowntime(Instant.now())) {
-			Status getMessage = objectMapper.readValue(new URL("https://live.albiononline.com/status.txt"), Status.class);
-			currentStatus.setMessage(getMessage.getMessage());
-		}
-		return true;
+		return getStatus(new NetHttpTransport());
 	}
 
-	@Scheduled(cron = "0/5 * * * * ?")
-	private void pollStatus() throws IOException
+	public Status getStatus(HttpTransport transport) throws IOException, ResourceNotAvailableException
 	{
-		boolean updated = updateStatus();
-		if (updated) {
-			channelNotifierService.notifyChannels(currentStatus, previousStatus);
+
+		return queryGenericUrlForStatus(transport, JENKINS_STATUS_URL);
+	}
+
+	private Status queryGenericUrlForStatus(HttpTransport httpTransport, GenericUrl queryUrl) throws IOException, ResourceNotAvailableException
+	{
+		HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
+		HttpRequest request = requestFactory.buildGetRequest(queryUrl);
+		HttpResponse response = request.execute();
+		if (response.getStatusCode() != 200)
+		{
+			throw new ResourceNotAvailableException(response.getStatusMessage(), response.parseAsString());
 		}
+		BufferedReader myReader = new BufferedReader(new InputStreamReader(response.getContent(), "UTF-8"));
+		String body = myReader.lines().collect(joining(lineSeparator()));
+		body = body.replaceAll("[^ a-zA-Z0-9{}:\",]", "");
+		return objectMapper.readValue(body, Status.class);
 	}
 }
