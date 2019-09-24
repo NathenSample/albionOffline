@@ -8,10 +8,12 @@ import java.net.URL;
 import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,12 +25,15 @@ public class StatusPollingService
 	//TODO: Implement a HTTP service to unshit the api call logic
 	private static final Logger LOGGER = LoggerFactory.getLogger(StatusPollingService.class);
 
-	private ChannelNotifierService channelNotifierService;
+	private final ChannelNotifierService channelNotifierService;
+	private final DowntimeService downtimeService;
 	private Status previousStatus = new Status("First Run", "First Run");
 	private Status currentStatus = new Status("First Run", "First Run");
 
-	public StatusPollingService(ChannelNotifierService channelNotifierService){
+	public StatusPollingService(@Autowired ChannelNotifierService channelNotifierService,
+								@Autowired DowntimeService downtimeService){
 		this.channelNotifierService = channelNotifierService;
+		this.downtimeService = downtimeService;
 	}
 
 	@EventListener(ApplicationReadyEvent.class)
@@ -53,30 +58,11 @@ public class StatusPollingService
 		}
 		previousStatus = currentStatus;
 		currentStatus = newStatus;
-		if (currentStatus.getStatus().equalsIgnoreCase("offline") && isItDTTime(new Date().getTime())) {
+		if (currentStatus.getStatus().equalsIgnoreCase("offline") && downtimeService.isDowntime(Instant.now())) {
 			Status getMessage = objectMapper.readValue(new URL("https://live.albiononline.com/status.txt"), Status.class);
 			currentStatus.setMessage(getMessage.getMessage());
 		}
 		return true;
-	}
-
-	//TODO: Fix this method, add test
-	private boolean isItDTTime(long currentTimeInMillis)
-	{
-		try
-		{
-			SimpleDateFormat formatter = new SimpleDateFormat("H:mm:ss");
-			Date dtStart = formatter.parse("10:00:00");
-			Date dtEnd = formatter.parse("11:00:00");
-			Time now = new Time(currentTimeInMillis);
-
-			LOGGER.info("Is it currently valid DT period? {}", now.after(dtStart) && now.before(dtEnd));
-			return now.after(dtStart) && now.before(dtEnd);
-		} catch (ParseException e)
-		{
-			LOGGER.error("Parse exception e: {}", e.getMessage(), e);
-		}
-		return false;
 	}
 
 	@Scheduled(cron = "0/5 * * * * ?")
