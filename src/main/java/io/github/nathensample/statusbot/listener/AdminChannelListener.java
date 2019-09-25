@@ -32,12 +32,7 @@ public class AdminChannelListener extends ListenerAdapter
 			event.getChannel().sendMessage(String.format("Toggling channel status subscription. %s", toggledTo)).queue();
 		}
 	}
-
-	@Override
-	public void onGuildLeave(GuildLeaveEvent event) {
-		LOGGER.info("I just left guild {}", event.getGuild().getName());
-	}
-
+	
 	private boolean doesUserHaveRoles(GuildMessageReceivedEvent event)
 	{
 		List<Role> roles = event.getGuild().getRolesByName("channel admin", true);
