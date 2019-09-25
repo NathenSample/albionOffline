@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAsync(proxyTargetClass = true)
 public class Application
 {
+	//TODO: Properly class/method link the javadoc
 	//TODO: Crashes if started during DT,
 	/*
 	Error starting ApplicationContext. To display the auto-configuration report re-run your application with 'debug' enabled.

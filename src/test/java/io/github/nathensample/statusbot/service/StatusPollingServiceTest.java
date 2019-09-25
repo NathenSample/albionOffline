@@ -26,6 +26,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class StatusPollingServiceTest
 {
+	//TODO: Test names could likely be improved
 	@Mock
 	private ConfigLoader MOCK_CONFIG_LOADER;
 	private StatusPollingService statusPollingService;
@@ -47,12 +48,16 @@ public class StatusPollingServiceTest
 	@Test
 	public void getValidStatusWithNoNeedToQueryJenkins() throws IOException, ResourceNotAvailableException
 	{
-		HttpTransport transport = new MockHttpTransport() {
+		HttpTransport transport = new MockHttpTransport()
+		{
 			@Override
-			public LowLevelHttpRequest buildRequest(String method, String url) throws IOException {
-				return new MockLowLevelHttpRequest() {
+			public LowLevelHttpRequest buildRequest(String method, String url)
+			{
+				return new MockLowLevelHttpRequest()
+				{
 					@Override
-					public LowLevelHttpResponse execute() throws IOException {
+					public LowLevelHttpResponse execute()
+					{
 						MockLowLevelHttpResponse response = new MockLowLevelHttpResponse();
 						response.setStatusCode(200);
 						response.setContent("{ \"status\": \"online\", \"message\": \"All good.\" }\n");
@@ -70,12 +75,16 @@ public class StatusPollingServiceTest
 	@Test
 	public void getValidStatusDuringDTSoWeFallBackToJenkins() throws IOException, ResourceNotAvailableException
 	{
-		HttpTransport transport = new MockHttpTransport() {
+		HttpTransport transport = new MockHttpTransport()
+		{
 			@Override
-			public LowLevelHttpRequest buildRequest(String method, String url) throws IOException {
-				return new MockLowLevelHttpRequest() {
+			public LowLevelHttpRequest buildRequest(String method, String url)
+			{
+				return new MockLowLevelHttpRequest()
+				{
 					@Override
-					public LowLevelHttpResponse execute() throws IOException {
+					public LowLevelHttpResponse execute()
+					{
 						MockLowLevelHttpResponse response = new MockLowLevelHttpResponse();
 						if (url.equals(BACKEND))
 						{
@@ -94,6 +103,61 @@ public class StatusPollingServiceTest
 		Status myStatus = statusPollingService.getStatus(transport);
 		assertEquals("online", myStatus.getStatus());
 		assertEquals("A Test Value", myStatus.getMessage());
+	}
 
+	@Test(expected = ResourceNotAvailableException.class)
+	public void whenBothResourcesUnavailableThrowException() throws IOException, ResourceNotAvailableException
+	{
+		HttpTransport transport = new MockHttpTransport()
+		{
+			@Override
+			public LowLevelHttpRequest buildRequest(String method, String url)
+			{
+				return new MockLowLevelHttpRequest()
+				{
+					@Override
+					public LowLevelHttpResponse execute()
+					{
+						MockLowLevelHttpResponse response = new MockLowLevelHttpResponse();
+						response.setStatusCode(500);
+						return response;
+					}
+				};
+			}
+		};
+		statusPollingService.getStatus(transport);
+	}
+
+	@Test
+	public void whenPrimaryServiceOnlineShouldNotFallBack() throws IOException, ResourceNotAvailableException
+	{
+		HttpTransport transport = new MockHttpTransport()
+		{
+			@Override
+			public LowLevelHttpRequest buildRequest(String method, String url)
+			{
+				return new MockLowLevelHttpRequest()
+				{
+					@Override
+					public LowLevelHttpResponse execute()
+					{
+						MockLowLevelHttpResponse response = new MockLowLevelHttpResponse();
+						if (url.equals(JENKINS))
+						{
+							response.setStatusCode(500);
+						}
+						else
+						{
+							response.setStatusCode(200);
+							response.setContent("{ \"status\": \"online\", \"message\": \"A Test Value\" }\n");
+						}
+						return response;
+					}
+				};
+			}
+		};
+		Status myStatus = statusPollingService.getStatus(transport);
+		assertEquals("online", myStatus.getStatus());
+		assertEquals("A Test Value", myStatus.getMessage());
 	}
 }
