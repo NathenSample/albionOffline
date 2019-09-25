@@ -34,7 +34,8 @@ public class DiscordService
 		discordToken = configLoader.getDiscordToken();
 	}
 
-	public void initializeBot(List<ListenerAdapter> listeners){
+	public void initializeBot(List<ListenerAdapter> listeners) throws LoginException, InterruptedException
+	{
 		try
 		{
 			JDABuilder builder = new JDABuilder(AccountType.BOT);
@@ -42,8 +43,10 @@ public class DiscordService
 			jda = builder.build();
 			jda.awaitReady();
 			listeners.forEach(jda::addEventListener);
+			LOGGER.info("Finished registering listeners");
 		} catch (LoginException | InterruptedException e){
-			LOGGER.error("exception: ", e);
+			LOGGER.error("==EXCEPTION DURING STARTUP==", e);
+			throw e;
 		}
 	}
 

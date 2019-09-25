@@ -24,8 +24,8 @@ public class StatusUpdateService
 	private final ChannelNotifierService channelNotifierService;
 	private final DowntimeService downtimeService;
 	private StatusPollingService statusPollingService;
-	private Status previousStatus = new Status("online", "All good.");
-	private Status currentStatus = new Status("online", "All good.");
+	private Status previousStatus = new Status("online", "Server is online.");
+	private Status currentStatus = new Status("online", "Server is online.");
 
 	public StatusUpdateService(@Autowired ChannelNotifierService channelNotifierService,
 							   @Autowired DowntimeService downtimeService,
