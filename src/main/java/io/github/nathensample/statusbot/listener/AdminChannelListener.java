@@ -4,15 +4,20 @@ import io.github.nathensample.statusbot.service.ChannelSubscriptionService;
 import java.io.IOException;
 import java.util.List;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AdminChannelListener extends ListenerAdapter
 {
+	private static final Logger LOGGER = LoggerFactory.getLogger(AdminChannelListener.class);
+
 	private final ChannelSubscriptionService channelSubscriptionService;
 
 	private AdminChannelListener(@Autowired  ChannelSubscriptionService channelSubscriptionService){
@@ -26,6 +31,11 @@ public class AdminChannelListener extends ListenerAdapter
 			String toggledTo = enabled ? "Service is now enabled." : "Service is now disabled.";
 			event.getChannel().sendMessage(String.format("Toggling channel status subscription. %s", toggledTo)).queue();
 		}
+	}
+
+	@Override
+	public void onGuildLeave(GuildLeaveEvent event) {
+		LOGGER.info("I just left guild {}", event.getGuild().getName());
 	}
 
 	private boolean doesUserHaveRoles(GuildMessageReceivedEvent event)

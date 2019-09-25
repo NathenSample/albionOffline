@@ -38,6 +38,14 @@ public class ChannelNotifierService
 
 	public void sendMessageToChannels(String message)
 	{
-		channelSubscriptionService.getChannelsToNotify().forEach(c -> discordService.getJda().getTextChannelById(c).sendMessage(message).queue());
+		channelSubscriptionService.getChannelsToNotify().forEach(c -> {
+			TextChannel channelToNotify = discordService.getJda().getTextChannelById(c);
+			if (channelToNotify != null) {
+				channelToNotify.sendMessage(message).queue();
+			}else {
+				LOGGER.error("Removing ID {} was unable to retrieve it.", c);
+				channelSubscriptionService.getChannelsToNotify().remove(c);
+			}
+		});
 	}
 }
