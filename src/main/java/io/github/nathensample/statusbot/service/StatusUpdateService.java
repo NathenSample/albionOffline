@@ -1,11 +1,8 @@
 package io.github.nathensample.statusbot.service;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.nathensample.statusbot.exception.ResourceNotAvailableException;
 import io.github.nathensample.statusbot.model.Status;
 import java.io.IOException;
-import java.net.URL;
 import java.time.Instant;
 
 import org.slf4j.Logger;
@@ -19,7 +16,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class StatusUpdateService
 {
-	//TODO: Implement a HTTP service to unshit the api call logic
 	private static final Logger LOGGER = LoggerFactory.getLogger(StatusUpdateService.class);
 	private static final String DT_MESSAGE =
 		"Server is currently unavailable due to daily maintenance." +
@@ -46,9 +42,10 @@ public class StatusUpdateService
 	}
 
 	/**
-	 *
+	 * Poll the API and update status as required
 	 * @return false if nothing changed, true if an update occurred
-	 * @throws IOException
+	 * @throws IOException when an IO error around the creation/execution of HTTP resources occurs
+	 * @throws ResourceNotAvailableException when the Response returns an error code as defined by HttpResponseException
 	 */
 	private boolean updateStatus() throws IOException, ResourceNotAvailableException
 	{
@@ -67,6 +64,12 @@ public class StatusUpdateService
 		return true;
 	}
 
+	/**
+	 * Every 5 seconds poll the available api's to check for status changes
+	 * notify all subscribers if a status change is detected
+	 * @throws IOException when an IO error around the creation/execution of HTTP resources occurs
+	 * @throws ResourceNotAvailableException when the Response returns an error code as defined by HttpResponseException
+	 */
 	@Scheduled(cron = "0/5 * * * * ?")
 	private void pollStatus() throws IOException, ResourceNotAvailableException
 	{
