@@ -2,13 +2,23 @@ package io.github.nathensample.statusbot.exception;
 
 public class ResourceNotAvailableException extends Exception
 {
-	private final String statusCode;
+	private final int statusCode;
 	private final String responseBody;
 
-	public ResourceNotAvailableException(String statusCode, String responseBody)
+	public ResourceNotAvailableException(int statusCode, String responseBody)
 	{
 		this.statusCode = statusCode;
 		this.responseBody = responseBody;
+	}
+
+	public int getStatusCode()
+	{
+		return statusCode;
+	}
+
+	public String getResponseBody()
+	{
+		return responseBody;
 	}
 
 	@Override

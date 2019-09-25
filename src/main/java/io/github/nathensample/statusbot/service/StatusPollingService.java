@@ -1,11 +1,7 @@
 package io.github.nathensample.statusbot.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
-import com.google.api.client.http.HttpResponse;
-import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import io.github.nathensample.statusbot.config.ConfigLoader;
 import io.github.nathensample.statusbot.exception.ResourceNotAvailableException;
@@ -49,22 +45,45 @@ public class StatusPollingService
 
 	public Status getStatus(HttpTransport transport) throws IOException, ResourceNotAvailableException
 	{
+		//Query Backend for most up to date serverstatus.albionline.com
+		//If it returns a 500, or offline, check jenkins .txt
+		Status newStatus;
+		try
+		{
+			 newStatus = queryGenericUrlForStatus(transport, BACKEND_STATUS_URL);
+		} catch (ResourceNotAvailableException e) {
+			if (e.getStatusCode() != 500)
+			{
+				//If it's not a 500 then it's unexpected so we rethrow.
+				throw e;
+			}
+			//Backend URL returns 500 during DT
+			//If this throws ResourceNotAvailable then we've got no way of getting the status
+			newStatus = queryGenericUrlForStatus(transport, JENKINS_STATUS_URL);
 
-		return queryGenericUrlForStatus(transport, JENKINS_STATUS_URL);
+		}
+		return newStatus;
 	}
 
 	private Status queryGenericUrlForStatus(HttpTransport httpTransport, GenericUrl queryUrl) throws IOException, ResourceNotAvailableException
 	{
-		HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
-		HttpRequest request = requestFactory.buildGetRequest(queryUrl);
-		HttpResponse response = request.execute();
-		if (response.getStatusCode() != 200)
+		try
 		{
-			throw new ResourceNotAvailableException(response.getStatusMessage(), response.parseAsString());
+			HttpRequestFactory requestFactory = httpTransport.createRequestFactory();
+			HttpRequest request = requestFactory.buildGetRequest(queryUrl);
+			HttpResponse response = request.execute();
+			if (response.getStatusCode() != 200)
+			{
+				throw new ResourceNotAvailableException(response.getStatusCode(), response.parseAsString());
+			}
+			BufferedReader myReader = new BufferedReader(new InputStreamReader(response.getContent(), "UTF-8"));
+			String body = myReader.lines().collect(joining(lineSeparator()));
+			body = body.replaceAll("[^ a-zA-Z0-9{}:\",]", "");
+			return objectMapper.readValue(body, Status.class);
 		}
-		BufferedReader myReader = new BufferedReader(new InputStreamReader(response.getContent(), "UTF-8"));
-		String body = myReader.lines().collect(joining(lineSeparator()));
-		body = body.replaceAll("[^ a-zA-Z0-9{}:\",]", "");
-		return objectMapper.readValue(body, Status.class);
+		catch (HttpResponseException e)
+		{
+			throw new ResourceNotAvailableException(e.getStatusCode(), e.getContent());
+		}
 	}
 }

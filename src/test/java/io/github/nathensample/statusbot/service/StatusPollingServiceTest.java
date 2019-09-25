@@ -30,14 +30,17 @@ public class StatusPollingServiceTest
 	private ConfigLoader MOCK_CONFIG_LOADER;
 	private StatusPollingService statusPollingService;
 
+	private static final String BACKEND = "http://serverstatus.albiononline.com";
+	private static final String JENKINS = "http://live.albiononline.com/status.txt";
+
 	@Before
 	public void init()
 	{
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
 		statusPollingService = new StatusPollingService(MOCK_CONFIG_LOADER, objectMapper);
-		when(MOCK_CONFIG_LOADER.getBackendStatusStr()).thenReturn("http://serverstatus.albiononline.com");
-		when(MOCK_CONFIG_LOADER.getJenkinsStatusStr()).thenReturn("http://live.albiononline.com/status.txt");
+		when(MOCK_CONFIG_LOADER.getBackendStatusStr()).thenReturn(BACKEND);
+		when(MOCK_CONFIG_LOADER.getJenkinsStatusStr()).thenReturn(JENKINS);
 		statusPollingService.init();
 	}
 
@@ -61,6 +64,36 @@ public class StatusPollingServiceTest
 		Status myStatus = statusPollingService.getStatus(transport);
 		assertEquals("online", myStatus.getStatus());
 		assertEquals("All good", myStatus.getMessage());
+
+	}
+
+	@Test
+	public void getValidStatusDuringDTSoWeFallBackToJenkins() throws IOException, ResourceNotAvailableException
+	{
+		HttpTransport transport = new MockHttpTransport() {
+			@Override
+			public LowLevelHttpRequest buildRequest(String method, String url) throws IOException {
+				return new MockLowLevelHttpRequest() {
+					@Override
+					public LowLevelHttpResponse execute() throws IOException {
+						MockLowLevelHttpResponse response = new MockLowLevelHttpResponse();
+						if (url.equals(BACKEND))
+						{
+							response.setStatusCode(500);
+						}
+						else
+						{
+							response.setStatusCode(200);
+							response.setContent("{ \"status\": \"online\", \"message\": \"A Test Value\" }\n");
+						}
+						return response;
+					}
+				};
+			}
+		};
+		Status myStatus = statusPollingService.getStatus(transport);
+		assertEquals("online", myStatus.getStatus());
+		assertEquals("A Test Value", myStatus.getMessage());
 
 	}
 }
