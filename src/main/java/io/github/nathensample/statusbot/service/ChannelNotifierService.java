@@ -1,6 +1,7 @@
 package io.github.nathensample.statusbot.service;
 
 import io.github.nathensample.statusbot.model.Status;
+import java.util.ArrayList;
 import java.util.List;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ public class ChannelNotifierService
 	}
 
 	public void notifyChannels(Status newStatus, Status oldStatus) {
+		List<String> toBeRemoved = new ArrayList<>();
 		List<String> channelsToNotify = channelSubscriptionService.getChannelsToNotify();
 		channelsToNotify.forEach(channelId -> {
 			TextChannel channel = discordService.getJda().getTextChannelById(channelId);
@@ -30,22 +32,25 @@ public class ChannelNotifierService
 				channel.sendMessage(newStatus.prettyPrint(oldStatus)).queue();
 			} else {
 				LOGGER.error("Removing ID {} was unable to retrieve it.", channelId);
-				channelSubscriptionService.getChannelsToNotify().remove(channelId);
+				toBeRemoved.add(channelId);
 			}
 		});
+		toBeRemoved.forEach(r-> channelSubscriptionService.getChannelsToNotify().remove(r));
 		LOGGER.info("Notified {} channels of the update to {}", channelsToNotify.size(), newStatus);
 	}
 
 	public void sendMessageToChannels(String message)
 	{
+		List<String> toBeRemoved = new ArrayList<>();
 		channelSubscriptionService.getChannelsToNotify().forEach(c -> {
 			TextChannel channelToNotify = discordService.getJda().getTextChannelById(c);
 			if (channelToNotify != null) {
 				channelToNotify.sendMessage(message).queue();
 			}else {
 				LOGGER.error("Removing ID {} was unable to retrieve it.", c);
-				channelSubscriptionService.getChannelsToNotify().remove(c);
+				toBeRemoved.add(c);
 			}
 		});
+		toBeRemoved.forEach(r-> channelSubscriptionService.getChannelsToNotify().remove(r));
 	}
 }
