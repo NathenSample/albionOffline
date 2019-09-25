@@ -3,7 +3,7 @@
 
 [![Build Status](https://travis-ci.org/NathenSample/albionOffline.png)](https://travis-ci.org/NathenSample/albionOffline)
 
-This is the source repository for the Albion Offline discord bot - If you are looking to add the bot to your server, then you can do so by vistting. [This Link](https://discordapp.com/oauth2/authorize?client_id=622384942755610624&scope=bot&permissions=3072).
+This is the source repository for the Albion Offline discord bot - If you are looking to add the bot to your server, then you can do so by visiting. [This Link](https://discordapp.com/oauth2/authorize?client_id=622384942755610624&scope=bot&permissions=3072).
 
 Once the bot has joined your server, verify that the `Albion Offline` role can view the channel, and then have either the server owner, or a user with the "Channel Admin" role enable the bot by sending `@status toggle` to the channel you would like to recieve updates. Repeat these steps for any other channels you would like to recieve notifications.
 
