@@ -2,6 +2,7 @@ package io.github.nathensample.statusbot.service;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.nathensample.statusbot.exception.ResourceNotAvailableException;
 import io.github.nathensample.statusbot.model.Status;
 import java.io.IOException;
 import java.net.URL;
@@ -20,20 +21,26 @@ public class StatusUpdateService
 {
 	//TODO: Implement a HTTP service to unshit the api call logic
 	private static final Logger LOGGER = LoggerFactory.getLogger(StatusUpdateService.class);
+	private static final String DT_MESSAGE =
+		"Server is currently unavailable due to daily maintenance." +
+		"Estimated downtime is: 10:00 to 11:00 (UTC) / 3AM to 4AM (PDT)";
 
 	private final ChannelNotifierService channelNotifierService;
 	private final DowntimeService downtimeService;
-	private Status previousStatus = new Status("First Run", "First Run");
-	private Status currentStatus = new Status("First Run", "First Run");
+	private StatusPollingService statusPollingService;
+	private Status previousStatus = new Status("online", "All good.");
+	private Status currentStatus = new Status("online", "All good.");
 
 	public StatusUpdateService(@Autowired ChannelNotifierService channelNotifierService,
-							   @Autowired DowntimeService downtimeService){
+							   @Autowired DowntimeService downtimeService,
+							   @Autowired StatusPollingService statusPollingService){
 		this.channelNotifierService = channelNotifierService;
 		this.downtimeService = downtimeService;
+		this.statusPollingService = statusPollingService;
 	}
 
 	@EventListener(ApplicationReadyEvent.class)
-	private void forcePoll() throws IOException
+	private void forcePoll() throws IOException, ResourceNotAvailableException
 	{
 		updateStatus();
 	}
@@ -43,26 +50,25 @@ public class StatusUpdateService
 	 * @return false if nothing changed, true if an update occurred
 	 * @throws IOException
 	 */
-	private boolean updateStatus() throws IOException
+	private boolean updateStatus() throws IOException, ResourceNotAvailableException
 	{
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
-		Status newStatus = objectMapper.readValue(new URL("http://serverstatus.albiononline.com"), Status.class);
+		Status newStatus = statusPollingService.getStatus();
 		LOGGER.info("Polled albion for status: {}", newStatus);
-		if (newStatus.equals(currentStatus)) {
+		// If the server is reporting as offline, and it's the time period in which we expect DT, add the rich message
+		if (newStatus.getStatus().equalsIgnoreCase("offline") && downtimeService.isDowntime(Instant.now())) {
+			newStatus.setMessage(DT_MESSAGE);
+		}
+		if (currentStatus.equals(newStatus))
+		{
 			return false;
 		}
 		previousStatus = currentStatus;
 		currentStatus = newStatus;
-		if (currentStatus.getStatus().equalsIgnoreCase("offline") && downtimeService.isDowntime(Instant.now())) {
-			Status getMessage = objectMapper.readValue(new URL("http://live.albiononline.com/status.txt"), Status.class);
-			currentStatus.setMessage(getMessage.getMessage());
-		}
 		return true;
 	}
 
 	@Scheduled(cron = "0/5 * * * * ?")
-	private void pollStatus() throws IOException
+	private void pollStatus() throws IOException, ResourceNotAvailableException
 	{
 		boolean updated = updateStatus();
 		if (updated) {
