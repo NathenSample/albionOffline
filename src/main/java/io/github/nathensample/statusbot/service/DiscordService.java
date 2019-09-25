@@ -1,6 +1,8 @@
 package io.github.nathensample.statusbot.service;
 
+import io.github.nathensample.statusbot.config.ConfigLoader;
 import java.util.List;
+import javax.annotation.PostConstruct;
 import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
@@ -8,6 +10,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -17,10 +20,20 @@ public class DiscordService
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DiscordService.class);
 
-	@Value("${discordToken}")
 	private String discordToken;
-
+	private ConfigLoader configLoader;
 	private JDA jda;
+
+	public DiscordService(@Autowired ConfigLoader configLoader)
+	{
+		this.configLoader = configLoader;
+	}
+
+	@PostConstruct
+	public void init()
+	{
+		discordToken = configLoader.getDiscordToken();
+	}
 
 	public void initializeBot(List<ListenerAdapter> listeners){
 		try
