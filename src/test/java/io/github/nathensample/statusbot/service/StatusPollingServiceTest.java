@@ -68,7 +68,7 @@ public class StatusPollingServiceTest
 		};
 		Status myStatus = statusPollingService.getStatus(transport);
 		assertEquals("online", myStatus.getStatus());
-		assertEquals("All good", myStatus.getMessage());
+		assertEquals("All good.", myStatus.getMessage());
 
 	}
 
