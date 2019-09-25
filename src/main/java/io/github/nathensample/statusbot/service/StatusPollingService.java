@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class StatusPollingService
 {
-	private static final Pattern SANITY_FILTER = Pattern.compile("[^ a-zA-Z0-9{}:\",]");
+	private static final Pattern SANITY_FILTER = Pattern.compile("[^ a-zA-Z0-9{}:\",.]");
 	private ConfigLoader CONFIG_LOADER;
 	private ObjectMapper objectMapper;
 

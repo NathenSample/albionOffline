@@ -1,10 +1,8 @@
 package io.github.nathensample.statusbot.listener;
 
 import io.github.nathensample.statusbot.service.ChannelSubscriptionService;
-import java.io.IOException;
 import java.util.List;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -32,7 +30,7 @@ public class AdminChannelListener extends ListenerAdapter
 			event.getChannel().sendMessage(String.format("Toggling channel status subscription. %s", toggledTo)).queue();
 		}
 	}
-	
+
 	private boolean doesUserHaveRoles(GuildMessageReceivedEvent event)
 	{
 		List<Role> roles = event.getGuild().getRolesByName("channel admin", true);
