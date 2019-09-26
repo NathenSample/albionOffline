@@ -1,10 +1,13 @@
 package io.github.nathensample.statusbot.service;
 
+import com.google.api.client.http.GenericUrl;
+import io.github.nathensample.statusbot.config.ConfigLoader;
 import io.github.nathensample.statusbot.exception.ResourceNotAvailableException;
 import io.github.nathensample.statusbot.model.Status;
 import java.io.IOException;
 import java.time.Instant;
 
+import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,16 +26,29 @@ public class StatusUpdateService
 
 	private final ChannelNotifierService channelNotifierService;
 	private final DowntimeService downtimeService;
-	private StatusPollingService statusPollingService;
+	private final StatusPollingService statusPollingService;
+	private final ConfigLoader configLoader;
+
+	private GenericUrl backendStatusUrl;
+
 	private Status previousStatus = new Status("online", "Server is online.");
 	private Status currentStatus = new Status("online", "Server is online.");
 
 	public StatusUpdateService(@Autowired ChannelNotifierService channelNotifierService,
 							   @Autowired DowntimeService downtimeService,
-							   @Autowired StatusPollingService statusPollingService){
+							   @Autowired StatusPollingService statusPollingService,
+							   @Autowired ConfigLoader configLoader){
 		this.channelNotifierService = channelNotifierService;
 		this.downtimeService = downtimeService;
 		this.statusPollingService = statusPollingService;
+		this.configLoader = configLoader;
+
+	}
+
+	@PostConstruct
+	public void init()
+	{
+		backendStatusUrl = new GenericUrl(configLoader.getBackendStatusStr());
 	}
 
 	@EventListener(ApplicationReadyEvent.class)
@@ -49,12 +65,25 @@ public class StatusUpdateService
 	 */
 	private boolean updateStatus() throws IOException, ResourceNotAvailableException
 	{
-		Status newStatus = statusPollingService.getStatus();
-		LOGGER.info("Polled albion for status: {}", newStatus);
-		// If the server is reporting as offline, and it's the time period in which we expect DT, add the rich message
-		if (newStatus.getStatus().equalsIgnoreCase("offline") && downtimeService.isDowntime(Instant.now())) {
-			newStatus.setMessage(DT_MESSAGE);
+		Status newStatus;
+		try
+		{
+			//Try backend first, it gives more up to date information but less pretty messages.
+			newStatus = statusPollingService.getStatus(backendStatusUrl);
 		}
+		catch (ResourceNotAvailableException e)
+		{
+			if (downtimeService.isDowntime(Instant.now()))
+			{
+				newStatus = currentStatus.clone();
+				newStatus.setMessage(DT_MESSAGE);
+			}
+			else
+			{
+				throw e;
+			}
+		}
+		LOGGER.info("Polled albion for status: {}", newStatus);
 		if (currentStatus.equals(newStatus))
 		{
 			return false;

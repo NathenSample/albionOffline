@@ -9,20 +9,12 @@ public class ConfigLoader
 	@Value("${BACKEND_STATUS_URL_STR:http://serverstatus.albiononline.com}")
 	private String BACKEND_STATUS_URL_STR;
 
-	@Value("${JENKINS_STATUS_URL_STR:http://live.albiononline.com/status.txt}")
-	private String JENKINS_STATUS_URL_STR;
-
 	@Value("${discordToken}")
 	private String DISCORD_TOKEN;
 
 	public String getBackendStatusStr()
 	{
 		return BACKEND_STATUS_URL_STR;
-	}
-
-	public String getJenkinsStatusStr()
-	{
-		return JENKINS_STATUS_URL_STR;
 	}
 
 	public String getDiscordToken()

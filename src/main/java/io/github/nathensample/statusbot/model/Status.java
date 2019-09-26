@@ -42,6 +42,11 @@ public class Status
 		return Objects.hash(status, message);
 	}
 
+	public Status clone()
+	{
+		return new Status(status, message);
+	}
+
 	public String getStatus() {
 		return status;
 	}
