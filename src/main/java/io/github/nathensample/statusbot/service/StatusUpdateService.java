@@ -21,7 +21,7 @@ public class StatusUpdateService
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(StatusUpdateService.class);
 	private static final String DT_MESSAGE =
-		"Server is currently unavailable due to daily maintenance." +
+		"Server is currently unavailable due to daily maintenance. " +
 		"Estimated downtime is: 10:00 to 11:00 (UTC) / 3AM to 4AM (PDT)";
 
 	private final ChannelNotifierService channelNotifierService;
