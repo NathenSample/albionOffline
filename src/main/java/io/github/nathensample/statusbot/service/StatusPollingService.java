@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class StatusPollingService
 {
+	private static final String UA = "Christy Cloud | Server Status Discord Bot";
 	private static final Pattern SANITY_FILTER = Pattern.compile("[^ a-zA-Z0-9{}:\",.]");
 	private ObjectMapper objectMapper;
 
@@ -52,6 +53,7 @@ public class StatusPollingService
 			{
 				HttpRequestFactory requestFactory = transport.createRequestFactory();
 				HttpRequest request = requestFactory.buildGetRequest(genericUrl);
+				request.getHeaders().setUserAgent(UA);
 				HttpResponse response = request.execute();
 				if (response.getStatusCode() != 200)
 				{
