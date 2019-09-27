@@ -70,6 +70,10 @@ public class StatusUpdateService
 		{
 			//Try backend first, it gives more up to date information but less pretty messages.
 			newStatus = statusPollingService.getStatus(backendStatusUrl);
+			if (newStatus.getStatus().equals("offline") && downtimeService.isDowntime(Instant.now()))
+			{
+				newStatus.setMessage(DT_MESSAGE);
+			}
 		}
 		catch (ResourceNotAvailableException e)
 		{
