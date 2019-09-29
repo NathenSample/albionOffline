@@ -78,9 +78,11 @@ public class Status
 		eb.setDescription("A change in server status has been detected!");
 		eb.addField("Status", oldStatus.getStatus() + " -> " + this.status, false);
 		eb.addField("Message", oldStatus.getMessage() + " -> " + this.message, false);
+		//TODO: Stop using github as a cdn
 		eb.setFooter(String.format("%s %s", strDate, cp),  "https://avatars3.githubusercontent.com/u/9803552?s=460&v=4");
 		eb.setAuthor("Status Monitor.", "https://github.com/NathenSample", "https://avatars3.githubusercontent.com/u/9803552?s=460&v=4");
 
+		//TODO: Stop using discord as a cdn
 		if (this.status.equalsIgnoreCase("online"))
 		{
 			eb.setImage("https://cdn.discordapp.com/attachments/493642125561430026/621292905281224724/Serverup10.gif");

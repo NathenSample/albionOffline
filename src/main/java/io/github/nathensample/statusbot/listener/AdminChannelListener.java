@@ -1,8 +1,10 @@
 package io.github.nathensample.statusbot.listener;
 
+import com.google.common.collect.ImmutableList;
 import io.github.nathensample.statusbot.service.ChannelSubscriptionService;
+import java.util.EnumSet;
 import java.util.List;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -14,6 +16,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class AdminChannelListener extends ListenerAdapter
 {
+	private static final List<Permission> EXPECTED_PERMS =
+		ImmutableList.of(Permission.ADMINISTRATOR, Permission.MANAGE_SERVER, Permission.MANAGE_CHANNEL);
 	private static final Logger LOGGER = LoggerFactory.getLogger(AdminChannelListener.class);
 
 	private final ChannelSubscriptionService channelSubscriptionService;
@@ -33,20 +37,14 @@ public class AdminChannelListener extends ListenerAdapter
 
 	private boolean doesUserHaveRoles(GuildMessageReceivedEvent event)
 	{
-		List<Role> roles = event.getGuild().getRolesByName("channel admin", true);
-
-		if (roles.size() != 0 )
+		EnumSet<Permission> userPerms = event.getMember().getPermissions();
+		for (Permission perm : userPerms)
 		{
-			Role channelAdmin = roles.get(0);
-			if (event.getGuild().getMembersWithRoles(channelAdmin).contains(event.getMember())) {
+			if (EXPECTED_PERMS.contains(perm))
+			{
 				return true;
 			}
 		}
-
-		if (event.getGuild().getOwner().equals(event.getMember())) {
-			return true;
-		}
-
 		return false;
 	}
 }
