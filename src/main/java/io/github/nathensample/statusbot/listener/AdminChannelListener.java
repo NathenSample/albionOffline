@@ -5,7 +5,7 @@ import io.github.nathensample.statusbot.service.ChannelSubscriptionService;
 import java.util.EnumSet;
 import java.util.List;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import org.slf4j.Logger;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class AdminChannelListener extends ListenerAdapter
 {
+
 	private static final List<Permission> EXPECTED_PERMS =
 		ImmutableList.of(Permission.ADMINISTRATOR, Permission.MANAGE_SERVER, Permission.MANAGE_CHANNEL);
 	private static final Logger LOGGER = LoggerFactory.getLogger(AdminChannelListener.class);
@@ -27,7 +28,7 @@ public class AdminChannelListener extends ListenerAdapter
 	}
 
 	@Override
-	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+	public void onMessageReceived(MessageReceivedEvent event) {
 		if (event.getMessage().getContentStripped().equalsIgnoreCase("@status toggle") && doesUserHaveRoles(event)) {
 			boolean enabled = channelSubscriptionService.toggleChannel(event);
 			String toggledTo = enabled ? "Service is now enabled." : "Service is now disabled.";
@@ -35,7 +36,7 @@ public class AdminChannelListener extends ListenerAdapter
 		}
 	}
 
-	private boolean doesUserHaveRoles(GuildMessageReceivedEvent event)
+	private boolean doesUserHaveRoles(MessageReceivedEvent event)
 	{
 		EnumSet<Permission> userPerms = event.getMember().getPermissions();
 		for (Permission perm : userPerms)

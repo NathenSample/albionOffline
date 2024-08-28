@@ -3,7 +3,11 @@ package io.github.nathensample.statusbot.service;
 import io.github.nathensample.statusbot.model.Status;
 import java.util.ArrayList;
 import java.util.List;
-import net.dv8tion.jda.api.entities.TextChannel;
+
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +33,7 @@ public class ChannelNotifierService
 		channelsToNotify.forEach(channelId -> {
 			TextChannel channel = discordService.getJda().getTextChannelById(channelId);
 			if (channel != null) {
-				channel.sendMessage(newStatus.prettyPrint(oldStatus)).queue();
+				channel.sendMessageEmbeds(newStatus.prettyPrint(oldStatus)).queue();
 			} else {
 				LOGGER.error("Removing ID {} was unable to retrieve it.", channelId);
 				toBeRemoved.add(channelId);

@@ -3,7 +3,8 @@ package io.github.nathensample.statusbot.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class ChannelSubscriptionService
 	 * @return false if disabled, true if enabled
 	 * @throws IOException when it cant persist the status
 	 */
-	public boolean toggleChannel(GuildMessageReceivedEvent event)
+	public boolean toggleChannel(MessageReceivedEvent event)
 	{
 		boolean enabled = false;
 		String channelId = event.getChannel().getId();

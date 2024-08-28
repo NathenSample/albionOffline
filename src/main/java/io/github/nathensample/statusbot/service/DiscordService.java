@@ -1,13 +1,17 @@
 package io.github.nathensample.statusbot.service;
 
 import io.github.nathensample.statusbot.config.ConfigLoader;
+
+import java.util.EnumSet;
 import java.util.List;
-import javax.annotation.PostConstruct;
 import javax.security.auth.login.LoginException;
+
+import jakarta.annotation.PostConstruct;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,13 +42,12 @@ public class DiscordService
 	{
 		try
 		{
-			JDABuilder builder = new JDABuilder(AccountType.BOT);
-			builder.setToken(discordToken);
-			jda = builder.build();
+			jda =   JDABuilder.createLight(discordToken, EnumSet.of(GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT))
+					.build();
 			jda.awaitReady();
 			listeners.forEach(jda::addEventListener);
 			LOGGER.info("Finished registering listeners");
-		} catch (LoginException | InterruptedException e){
+		} catch (InterruptedException e){
 			LOGGER.error("==EXCEPTION DURING STARTUP==", e);
 			throw e;
 		}
