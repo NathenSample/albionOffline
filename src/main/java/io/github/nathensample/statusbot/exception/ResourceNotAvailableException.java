@@ -1,5 +1,7 @@
 package io.github.nathensample.statusbot.exception;
 
+import org.jetbrains.annotations.NotNull;
+
 public class ResourceNotAvailableException extends Exception
 {
 	private final int statusCode;
@@ -21,6 +23,7 @@ public class ResourceNotAvailableException extends Exception
 		return responseBody;
 	}
 
+	@NotNull
 	@Override
 	public String toString()
 	{

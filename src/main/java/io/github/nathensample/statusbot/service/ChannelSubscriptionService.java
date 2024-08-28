@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ public class ChannelSubscriptionService
 	private static final Logger LOGGER = LoggerFactory.getLogger(ChannelSubscriptionService.class);
 	private final SqlLiteService sqlLiteService;
 
+	@NotNull
 	private List<String> channelsToNotify = new ArrayList<>();
 
 	public ChannelSubscriptionService(@Autowired SqlLiteService sqlLiteService) {
@@ -38,7 +40,7 @@ public class ChannelSubscriptionService
 	 * @return false if disabled, true if enabled
 	 * @throws IOException when it cant persist the status
 	 */
-	public boolean toggleChannel(MessageReceivedEvent event)
+	public boolean toggleChannel(@NotNull MessageReceivedEvent event)
 	{
 		boolean enabled = false;
 		String channelId = event.getChannel().getId();

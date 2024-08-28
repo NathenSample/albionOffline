@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import jakarta.annotation.PostConstruct;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -34,7 +35,7 @@ public class DowntimeService
 		AFTER.setTime(afterDate);
 	}
 
-	public boolean isDowntime(Instant instant)
+	public boolean isDowntime(@NotNull Instant instant)
 	{
 		LocalDateTime ldt = LocalDateTime.ofInstant(instant, ZoneOffset. UTC);
 		int hour = ldt.getHour();

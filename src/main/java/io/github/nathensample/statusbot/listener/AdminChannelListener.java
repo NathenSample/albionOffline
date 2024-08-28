@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class AdminChannelListener extends ListenerAdapter
 	}
 
 	@Override
-	public void onMessageReceived(MessageReceivedEvent event) {
+	public void onMessageReceived(@NotNull MessageReceivedEvent event) {
 		if (event.getMessage().getContentStripped().equalsIgnoreCase("@status toggle") && doesUserHaveRoles(event)) {
 			boolean enabled = channelSubscriptionService.toggleChannel(event);
 			String toggledTo = enabled ? "Service is now enabled." : "Service is now disabled.";
@@ -36,7 +37,7 @@ public class AdminChannelListener extends ListenerAdapter
 		}
 	}
 
-	private boolean doesUserHaveRoles(MessageReceivedEvent event)
+	private boolean doesUserHaveRoles(@NotNull MessageReceivedEvent event)
 	{
 		EnumSet<Permission> userPerms = event.getMember().getPermissions();
 		for (Permission perm : userPerms)

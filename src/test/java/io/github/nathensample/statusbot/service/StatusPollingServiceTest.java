@@ -15,6 +15,8 @@ import io.github.nathensample.statusbot.exception.ResourceNotAvailableException;
 import io.github.nathensample.statusbot.model.Status;
 import java.io.IOException;
 import static org.junit.Assert.*;
+
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -43,11 +45,13 @@ public class StatusPollingServiceTest
 	{
 		HttpTransport transport = new MockHttpTransport()
 		{
+			@NotNull
 			@Override
 			public LowLevelHttpRequest buildRequest(String method, String url)
 			{
 				return new MockLowLevelHttpRequest()
 				{
+					@NotNull
 					@Override
 					public LowLevelHttpResponse execute()
 					{
@@ -70,11 +74,13 @@ public class StatusPollingServiceTest
 	{
 		HttpTransport transport = new MockHttpTransport()
 		{
+			@NotNull
 			@Override
 			public LowLevelHttpRequest buildRequest(String method, String url)
 			{
 				return new MockLowLevelHttpRequest()
 				{
+					@NotNull
 					@Override
 					public LowLevelHttpResponse execute()
 					{

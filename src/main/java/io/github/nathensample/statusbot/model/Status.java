@@ -8,6 +8,8 @@ import java.util.Objects;
 import java.util.TimeZone;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class Status
 {
@@ -21,7 +23,7 @@ public class Status
 	}
 
 	@Override
-	public boolean equals(Object o)
+	public boolean equals(@Nullable Object o)
 	{
 		if (this == o)
 		{
@@ -42,6 +44,7 @@ public class Status
 		return Objects.hash(status, message);
 	}
 
+	@NotNull
 	public Status clone()
 	{
 		return new Status(status, message);
@@ -67,7 +70,8 @@ public class Status
 
 
 
-	public MessageEmbed prettyPrint(Status oldStatus)
+	@NotNull
+	public MessageEmbed prettyPrint(@NotNull Status oldStatus)
 	{
 		SimpleDateFormat isoFormat = new SimpleDateFormat("hh:mm:ss dd MMMM yyyy zzzz");
 		isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -94,6 +98,7 @@ public class Status
 		return eb.build();
 	}
 
+	@NotNull
 	@Override
 	public String toString()
 	{

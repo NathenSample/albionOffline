@@ -13,6 +13,8 @@ import static java.lang.System.lineSeparator;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 import static java.util.stream.Collectors.joining;
+
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +50,7 @@ public class StatusPollingService
 	 * @throws IOException when an IO error around the creation/execution of HTTP resources occurs
 	 * @throws ResourceNotAvailableException when the Response returns an error code as defined by HttpResponseException
 	 */
-	Status getStatus(HttpTransport transport, GenericUrl genericUrl) throws IOException, ResourceNotAvailableException
+	Status getStatus(@NotNull HttpTransport transport, GenericUrl genericUrl) throws IOException, ResourceNotAvailableException
 	{
 		{
 			try

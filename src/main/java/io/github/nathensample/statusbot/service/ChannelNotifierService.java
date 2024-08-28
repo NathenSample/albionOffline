@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class ChannelNotifierService
 		this.channelSubscriptionService = channelSubscriptionService;
 	}
 
-	public void notifyChannels(Status newStatus, Status oldStatus) {
+	public void notifyChannels(@NotNull Status newStatus, @NotNull Status oldStatus) {
 		List<String> toBeRemoved = new ArrayList<>();
 		List<String> channelsToNotify = channelSubscriptionService.getChannelsToNotify();
 		channelsToNotify.forEach(channelId -> {
@@ -40,7 +41,7 @@ public class ChannelNotifierService
 		LOGGER.info("Notified {} channels of the update to {}", channelsToNotify.size(), newStatus);
 	}
 
-	public void sendMessageToChannels(String message)
+	public void sendMessageToChannels(@NotNull String message)
 	{
 		List<String> toBeRemoved = new ArrayList<>();
 		channelSubscriptionService.getChannelsToNotify().forEach(c -> {

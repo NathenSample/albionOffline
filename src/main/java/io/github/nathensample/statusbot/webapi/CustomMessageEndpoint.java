@@ -3,6 +3,7 @@ package io.github.nathensample.statusbot.webapi;
 import io.github.nathensample.statusbot.model.CustomMessage;
 import io.github.nathensample.statusbot.service.ChannelNotifierService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +25,10 @@ public class CustomMessageEndpoint
 		this.channelNotifierService = channelNotifierService;
 	}
 
+	@NotNull
 	@RequestMapping(value = "/api/internal/discord/postmessage", method = RequestMethod.POST)
 	public ResponseEntity<HttpStatus> customMessage(HttpServletRequest request,
-													@RequestBody CustomMessage message) {
+													@NotNull @RequestBody CustomMessage message) {
 		LOGGER.info("Received custom message {}", message.getCustomMessage());
 
 		channelNotifierService.sendMessageToChannels(message.getCustomMessage());

@@ -1,6 +1,7 @@
 package io.github.nathensample.statusbot.service;
 
 import jakarta.annotation.PostConstruct;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
@@ -35,6 +36,7 @@ public class SqlLiteService
         return true;
     }
 
+    @NotNull
     public List<String> loadChannelIdsFromDatabase() {
         File fullPathFile = new File(DATABASE_PATH_ROOT + DATABASE_NAME);
 
