@@ -9,6 +9,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import static java.lang.System.lineSeparator;
+
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 import static java.util.stream.Collectors.joining;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +21,7 @@ public class StatusPollingService
 {
 	private static final String UA = "Christy Cloud | Server Status Discord Bot";
 	private static final Pattern SANITY_FILTER = Pattern.compile("[^ a-zA-Z0-9{}:\",.]");
-	private ObjectMapper objectMapper;
+	private final ObjectMapper objectMapper;
 
 
 
@@ -59,7 +61,7 @@ public class StatusPollingService
 				{
 					throw new ResourceNotAvailableException(response.getStatusCode(), response.parseAsString());
 				}
-				BufferedReader myReader = new BufferedReader(new InputStreamReader(response.getContent(), "UTF-8"));
+				BufferedReader myReader = new BufferedReader(new InputStreamReader(response.getContent(), StandardCharsets.UTF_8));
 				String body = myReader.lines().collect(joining(lineSeparator()));
 			/*
 				SBI serve data in weird ways (Including JSON through a .txt file) this tries to limit any insanity,

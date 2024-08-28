@@ -20,8 +20,8 @@ public class DowntimeService
 	private static final String DT_START = "10:00:00";
 	private static final String DT_END = "11:00:00";
 	private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
-	private Calendar BEFORE = Calendar.getInstance();
-	private Calendar AFTER = Calendar.getInstance();
+	private final Calendar BEFORE = Calendar.getInstance();
+	private final Calendar AFTER = Calendar.getInstance();
 
 	@PostConstruct
 	void init() throws ParseException

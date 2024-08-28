@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
-import net.dv8tion.jda.api.utils.messages.MessageCreateData;
-import net.dv8tion.jda.api.utils.messages.MessageData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +15,8 @@ public class ChannelNotifierService
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ChannelNotifierService.class);
 
-	private ChannelSubscriptionService channelSubscriptionService;
-	private DiscordService discordService;
+	private final ChannelSubscriptionService channelSubscriptionService;
+	private final DiscordService discordService;
 
 	public ChannelNotifierService(@Autowired DiscordService discordService,
 								  @Autowired ChannelSubscriptionService channelSubscriptionService) {

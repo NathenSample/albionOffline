@@ -7,7 +7,6 @@ import java.util.List;
 import javax.security.auth.login.LoginException;
 
 import jakarta.annotation.PostConstruct;
-import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -24,7 +23,7 @@ public class DiscordService
 	private static final Logger LOGGER = LoggerFactory.getLogger(DiscordService.class);
 
 	private String discordToken;
-	private ConfigLoader configLoader;
+	private final ConfigLoader configLoader;
 	private JDA jda;
 
 	public DiscordService(@Autowired ConfigLoader configLoader)
